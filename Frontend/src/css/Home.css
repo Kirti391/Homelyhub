@@ -29,7 +29,7 @@
   border-radius: 30px;
   height: 100%;
   width: 90%;
-  display: flex;
+  margin: 0;
   box-shadow: 1px 1px 10px lightgray;
 }
 .search {
@@ -59,6 +59,11 @@ input::placeholder {
 }
 .searchicon:hover {
   box-shadow: 2px 2px 5px black;
+}
+.searchicon {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 .search:hover,
 .date_picker:hover {
@@ -163,10 +168,6 @@ figure:hover main {
   margin: 0;
 }
 
-footer {
-  display: none;
-}
-
 .pagination {
   display: flex;
   justify-content: center;
@@ -203,4 +204,95 @@ footer {
 
 .material-symbols-outlined {
   font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .propertylist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    height: auto;
+    min-height: 5rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+  }
+
+  .header > a:first-child .logo {
+    width: 5rem;
+    height: 3rem;
+  }
+
+  .header .web_logo {
+    padding: 0.5rem;
+    font-size: 2rem;
+  }
+
+  .search_filter {
+    order: 3;
+    width: 100%;
+    height: auto;
+    gap: 0.5rem;
+  }
+
+  .searchbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 4.5rem 2.5rem;
+    gap: 0.25rem;
+    width: 100%;
+    height: auto;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border-radius: 1rem;
+  }
+
+  .searchbar > #search_destination {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .searchbar > .ant-space.search {
+    grid-column: 1 / 3;
+    width: 100%;
+  }
+
+  .searchbar > .ant-space.search .date_picker {
+    width: 100%;
+    height: 2.5rem;
+    box-sizing: border-box;
+  }
+
+  .searchbar > #addguest {
+    grid-column: 3;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .searchbar > .searchicon {
+    grid-column: 4;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+  }
+
+  .search_filter > .filter {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .propertylist {
+    grid-template-columns: minmax(0, 1fr);
+    width: calc(100% - 2rem);
+  }
 }

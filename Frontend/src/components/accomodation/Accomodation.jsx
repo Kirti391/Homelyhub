@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "../../css/Accomodation.css";
 import ProgressSteps from "../ProgressSteps";
 import MyAccomodation from "./MyAccomodation";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllAccomodation } from "../../store/Accomodation/Accomodation-action";
 import LoadingSpinner from "../LoadingSpinner";
@@ -10,7 +10,7 @@ import LoadingSpinner from "../LoadingSpinner";
 const Accomodation = () => {
   const dispatch = useDispatch();
 
-  const { accomodation, loading } = useSelector((state) => state.accomodation);
+  const { accomodation, loading, errors } = useSelector((state) => state.accomodation);
 
   useEffect(() => {
     dispatch(getAllAccomodation());
@@ -24,8 +24,11 @@ const Accomodation = () => {
           <button className="add-new-place">+ Add new place</button>
         </Link>
         {loading && <LoadingSpinner />}
-        {accomodation.length === 0 && !loading && (
-          <p>Accomodation not available</p>
+        {errors && !loading && (
+          <p className="accommodation-error" role="alert">{errors}</p>
+        )}
+        {accomodation.length === 0 && !loading && !errors && (
+          <p>No accommodations yet. Add your first place to get started.</p>
         )}
         {accomodation.length > 0 && !loading && (
           <MyAccomodation accomodation={accomodation} loading={loading} />

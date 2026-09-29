@@ -1,7 +1,6 @@
 import React,{useState} from 'react';
 // readymade calendar component
 import {DatePicker, Space} from "antd";
-import "react-datepicker/dist/react-datepicker.css";
 import "../../css/Home.css"
 import{useDispatch}from "react-redux"
 import {propertyAction} from "../../store/Property/property-slice"
@@ -9,22 +8,22 @@ import { getAllProperties } from '../../store/Property/property-action';
 const Search = () => {
 
     const {RangePicker} = DatePicker
-    const [keyword, setKeyword] = useState({});
-    const [value,setValue] = useState([])
+    const [keyword, setKeyword] = useState({city: "", guests: "", dateIn: "", dateOut: ""});
+    const [value,setValue] = useState(null)
      const dispatch = useDispatch()
 
     function searchHandler(e){
         e.preventDefault();
-        dispatch(propertyAction.updateSearchParams(keyword));
+        dispatch(propertyAction.updateSearchParams({ ...keyword, page: 1 }));
         dispatch(getAllProperties())
-        setKeyword({city :"", guests: "",  dateIn: "", dateOut:""})
-        setValue([])
+        setKeyword({city: "", guests: "", dateIn: "", dateOut: ""})
+        setValue(null)
     }
 
-    function returnDates(date, dateString){
-        setValue([date[0], date[1]]);
-        updateKeyword("dateIn", dateString[0]);
-        updateKeyword("dateOut", dateString[1])
+    function returnDates(dates){
+        setValue(dates);
+        updateKeyword("dateIn", dates?.[0]?.format("YYYY-MM-DD") ?? "");
+        updateKeyword("dateOut", dates?.[1]?.format("YYYY-MM-DD") ?? "");
     }
     
     const updateKeyword = (field, value) =>{
@@ -36,7 +35,7 @@ const Search = () => {
 
   return (
     <>
-    <div className='searchbar'>
+    <form className='searchbar' onSubmit={searchHandler}>
         <input
         className='search'
         id='search_destination'
@@ -62,12 +61,16 @@ const Search = () => {
         id= "addguest"
         placeholder="Add Guests"
         type='number'
+        min="1"
+        step="1"
         value = {keyword.guests}
         onChange={(e) => updateKeyword("guests", e.target.value)}
         />
-        <span className='material-symbols-outlined searchicon' onClick={searchHandler}>search</span>
+        <button className='material-symbols-outlined searchicon' type="submit" aria-label="Search">
+          search
+        </button>
       
-    </div>
+    </form>
     </>
   )
     

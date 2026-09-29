@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { userActions } from "./store/User/user-slice";
 import { currentUser } from "./store/User/user-action";
+import LoadingSpinner from "./components/LoadingSpinner";
 import EditProfile from "./components/user/EditProfile";
 import Profile from "./components/user/Profile";
 
@@ -25,14 +26,28 @@ import ForgotPassword from "./components/user/ForgetPassword";
 import ResetPassword from "./components/user/ResetPassword";
 import UpdatePassword from "./components/user/UpdatePassword";
 
+const PrivateRoute = ({ children }) => {
+  const { authChecked, user } = useSelector((state) => state.user);
+
+  if (!authChecked) {
+    return <LoadingSpinner />;
+  }
+
+  return user ? children : <Navigate to="/login" replace />;
+};
+
 function App() {
 const dispatch=useDispatch();
-const {errors,user}=useSelector((state)=>state.user)
+const {errors}=useSelector((state)=>state.user)
 useEffect(()=>{
   if(errors){
     dispatch(userActions.clearErrors());
   }
-},[dispatch]);
+},[dispatch, errors]);
+
+useEffect(() => {
+  dispatch(currentUser());
+}, [dispatch]);
 
   return (
     <div className="App">
@@ -47,20 +62,20 @@ useEffect(()=>{
           <Route path="login" element={<Login/>}/>
           <Route path="signup" element={<Signup/>}/>
           <Route path="profile" element={<Profile/>}/>
-          <Route path="editprofile" element={user? <EditProfile/>:<Navigate to="/login"/>} />
+          <Route path="editprofile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
           {/* Booking route  */}
-          <Route path="user/mybookings" element={user ? <MyBookings/> : <Navigate to="/login"/>}/>
-          <Route path="user/mybookings/:bookingId" element={user ? <BookingDetails/> : <Navigate to="/login"/>}/>
+          <Route path="user/mybookings" element={<PrivateRoute><MyBookings /></PrivateRoute>} />
+          <Route path="user/mybookings/:bookingId" element={<PrivateRoute><BookingDetails /></PrivateRoute>} />
            
            {/* Payment Route  */}
-          <Route path="payment/:propertyId" element={user ? <Payment/> : <Navigate to="/login"/>}/>
+          <Route path="payment/:propertyId" element={<PrivateRoute><Payment /></PrivateRoute>} />
                  
             {/* 404 Not found  */}
             <Route path="*" element={<NotFound/>}/>
 
             {/* Accomodation Routes  */}
-            <Route path="accomodation" element={<Accomodation/>}/>
-            <Route path="accomodationform" element={<AccomodationForm/>}/>
+            <Route path="accomodation" element={<PrivateRoute><Accomodation /></PrivateRoute>} />
+            <Route path="accomodationform" element={<PrivateRoute><AccomodationForm /></PrivateRoute>} />
 
           </Route>
             <Route path="/user/forgotPassword" element={<ForgotPassword />} />

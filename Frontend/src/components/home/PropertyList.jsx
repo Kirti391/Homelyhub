@@ -42,9 +42,18 @@ const Card = ({image,name,address, price,id}) =>{
 const PropertyList = () => {
   const [currentPage, setCurrentPage] = useState({page:1})
   const dispatch = useDispatch();
-  const{properties, totalProperties} = useSelector((state)=> state.properties);
-  const lastPage = Math.ceil(totalProperties/12);
-  const propertyListRef = useRef(null);
+    const {properties, totalProperties, searchParams} = useSelector((state)=> state.properties);
+    const searchCriteriaKey = JSON.stringify(
+      Object.entries(searchParams)
+        .filter(([key]) => key !== "page")
+        .sort(([left], [right]) => left.localeCompare(right))
+    );
+    const lastPage = Math.ceil(totalProperties/12);
+    const propertyListRef = useRef(null);
+
+    useEffect(() => {
+      setCurrentPage({page: 1});
+    }, [searchCriteriaKey]);
 
   useEffect(()=>{
     const fetchProperties = async(page) =>{

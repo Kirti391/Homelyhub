@@ -27,7 +27,9 @@ export const currentUser = () =>  async(dispatch)=>{
         const {data} = await axiosInstance.get("/v1/rent/user/me");
         dispatch(userActions.getCurrentUser(data.user))
     }catch(error){
-       dispatch(userActions.getError(error.response.data.message))
+       dispatch(userActions.getCurrentUserError(
+         error.response?.data?.message ?? error.message ?? "Could not verify the current user."
+       ))
     }
 }
 

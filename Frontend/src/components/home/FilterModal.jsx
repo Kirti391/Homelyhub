@@ -3,47 +3,105 @@ import React, { useState } from "react";
 import "../../css/FilterModal.css";
 import "react-input-range/lib/css/index.css";
 import InputRange from "react-input-range";
+import { useDispatch, useSelector } from "react-redux";
+import { propertyAction } from "../../store/Property/property-slice";
+import { getAllProperties } from "../../store/Property/property-action";
 
 const FilterModal = ({ onClose }) => {
-  const [priceRange, setPriceRange] = useState({ min: 600, max: 30000 });
-  const [propertyType, setPropertyType] = useState("");
-  const [roomType, setRoomType] = useState("");
-  const [amenities, setAmenities] = useState([]);
+  const searchParams = useSelector((state) => state.properties.searchParams);
+  const dispatch = useDispatch();
+  const [priceRange, setPriceRange] = useState({
+    min: Number(searchParams.minPrice) || 600,
+    max: Number(searchParams.maxPrice) || 30000,
+  });
+  const [minPriceInput, setMinPriceInput] = useState(
+    String(Number(searchParams.minPrice) || 600)
+  );
+  const [maxPriceInput, setMaxPriceInput] = useState(
+    String(Number(searchParams.maxPrice) || 30000)
+  );
+  const [priceError, setPriceError] = useState("");
+  const [propertyType, setPropertyType] = useState(searchParams.propertyType || "");
+  const [roomType, setRoomType] = useState(searchParams.roomType || "");
+  const [amenities, setAmenities] = useState(
+    Array.isArray(searchParams.amenities)
+      ? searchParams.amenities
+      : searchParams.amenities
+        ? [searchParams.amenities]
+        : []
+  );
 
   const handlePriceRangeChange = (value) => {
     setPriceRange(value);
+    setMinPriceInput(String(value.min));
+    setMaxPriceInput(String(value.max));
+    setPriceError("");
   };
 
   const handleMinInputChange = (e) => {
-    const minValue = parseInt(e.target.value, 10);
-    setPriceRange((prev) => ({ ...prev, min: minValue }));
+    setMinPriceInput(e.target.value);
   };
 
   const handleMaxInputChange = (e) => {
-    const maxValue = parseInt(e.target.value, 10);
-    setPriceRange((prev) => ({ ...prev, max: maxValue }));
+    setMaxPriceInput(e.target.value);
   };
 
   const handleFilterChange = () => {
-    console.log("Applied Filters:", {
-      priceRange,
+    const minPrice = Number(minPriceInput);
+    const maxPrice = Number(maxPriceInput);
+    if (
+      !Number.isFinite(minPrice) ||
+      !Number.isFinite(maxPrice) ||
+      minPrice < 600 ||
+      maxPrice > 30000 ||
+      minPrice > maxPrice
+    ) {
+      setPriceError("Enter a valid range between ₹600 and ₹30,000.");
+      return;
+    }
+
+    dispatch(propertyAction.updateSearchParams({
+      minPrice,
+      maxPrice,
       propertyType,
       roomType,
       amenities,
-    });
+      page: 1,
+    }));
+    dispatch(getAllProperties());
+    onClose();
+  };
+
+  const handleClearFilters = () => {
+    setPriceRange({ min: 600, max: 30000 });
+    setMinPriceInput("600");
+    setMaxPriceInput("30000");
+    setPriceError("");
+    setPropertyType("");
+    setRoomType("");
+    setAmenities([]);
+    dispatch(propertyAction.updateSearchParams({
+      minPrice: "",
+      maxPrice: "",
+      propertyType: "",
+      roomType: "",
+      amenities: [],
+      page: 1,
+    }));
+    dispatch(getAllProperties());
   };
 
   const propertyTypeOptions = [
-    { value: "house", label: "House", icon: "home" },
-    { value: "flat", label: "Flat", icon: "apartment" },
-    { value: "guest-house", label: "Guest House", icon: "hotel" },
-    { value: "hotel", label: "Hotel", icon: "meeting_room" },
+    { value: "House", label: "House", icon: "home" },
+    { value: "Flat", label: "Flat", icon: "apartment" },
+    { value: "Guest House", label: "Guest House", icon: "hotel" },
+    { value: "Hotel", label: "Hotel", icon: "meeting_room" },
   ];
 
   const roomTypeOptions = [
     { value: "Entire Home", label: "Entire Home", icon: "hotel" },
     { value: "Room", label: "Room", icon: "meeting_room" },
-    { value: "Anytype", label: "Any Type", icon: "apartment" },
+    { value: "", label: "Any Type", icon: "apartment" },
   ];
 
   const amenitiesOptions = [
@@ -59,13 +117,6 @@ const FilterModal = ({ onClose }) => {
     { value: "Pool", label: "Pool", icon: "pool" },
     { value: "Free Parking", label: "Free Parking", icon: "local_parking" },
   ];
-
-  const handleClearFilters = () => {
-    setPriceRange({ min: 600, max: 30000 });
-    setPropertyType("");
-    setRoomType("");
-    setAmenities([]);
-  };
 
   const handleAmenitiesChange = (selectedAmenity) => {
     setAmenities((prevAmenities) =>
@@ -86,13 +137,12 @@ const FilterModal = ({ onClose }) => {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content" 
-      style={{maxHeight:"80vh", overflow:"auto"}}>
-        <h4>
+    <div className="filter-modal-backdrop">
+      <div className="filter-modal-content" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+        <h4 id="filter-modal-title">
           Filters <hr />
         </h4>
-        <button className="close-button" onClick={onClose}>
+        <button className="close-button" onClick={onClose} aria-label="Close filters">
           <span>&times;</span>
         </button>
 
@@ -109,16 +159,23 @@ const FilterModal = ({ onClose }) => {
             <div className="range-inputs">
               <input
                 type="number"
-                value={priceRange.min}
+                min="600"
+                max="30000"
+                value={minPriceInput}
                 onChange={handleMinInputChange}
+                aria-label="Minimum price"
               />
               <span>-</span>
               <input
                 type="number"
-                value={priceRange.max}
+                min="600"
+                max="30000"
+                value={maxPriceInput}
                 onChange={handleMaxInputChange}
+                aria-label="Maximum price"
               />
             </div>
+            {priceError && <p className="filter-error" role="alert">{priceError}</p>}
           </div>
 
           <div className="filter-section">
@@ -144,7 +201,7 @@ const FilterModal = ({ onClose }) => {
             <div className="icon-box">
               {roomTypeOptions.map((option) => (
                 <div
-                  key={option.value}
+                  key={option.value || "any-type"}
                   className={`selectable-box ${
                     roomType === option.value ? "selected" : ""
                   }`}

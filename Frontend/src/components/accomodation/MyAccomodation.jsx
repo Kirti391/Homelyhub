@@ -1,8 +1,6 @@
 import React from "react";
 
 const MyAccomodation = ({ accomodation }) => {
-  console.log(accomodation);
-
   return (
     <div className="main-container">
       {accomodation.map((accomodation) => (
@@ -10,7 +8,7 @@ const MyAccomodation = ({ accomodation }) => {
           <div className="myaccomodation-image-container col-lg-3 col-md-3">
             <img
               className="myaccomodation-img"
-              src={accomodation.images[0].url}
+              src={accomodation.images?.[0]?.url || "/assets/logo.png"}
               alt={accomodation.propertyName}
             />
           </div>
@@ -23,7 +21,7 @@ const MyAccomodation = ({ accomodation }) => {
                 <span className="material-symbols-outlined icon">
                   calendar_month
                 </span>
-                Check In Time: {accomodation.chekInTime}
+                Check In Time: {accomodation.checkInTime || accomodation.chekInTime || "Not set"}
               </span>
               <span className="material-symbols-outlined icon">
                 arrow_forward
@@ -32,18 +30,18 @@ const MyAccomodation = ({ accomodation }) => {
                 <span className="material-symbols-outlined icon">
                   calendar_month
                 </span>
-                Check Out Time: {accomodation.chekOutTime}
+                Check Out Time: {accomodation.checkOutTime || accomodation.chekOutTime || "Not set"}
               </span>
             </div>
             <p className="myaccomodation-city">
-              City :{accomodation.address.city}
+              City: {accomodation.address?.city || "Not provided"}
             </p>
             <p className="myaccomodation-guest">
-              Max no of guest : {accomodation.maximumGuest}
+              Max no. of guests: {accomodation.maximumGuest}
             </p>
             <h5 className="myaccomodation-price">
-              <span className="material-symbols-outlined">payments</span> Total
-              Price :&#8377; {accomodation.price}
+              <span className="material-symbols-outlined">payments</span> Price
+              per night: &#8377; {accomodation.price}
             </h5>
           </div>
         </div>
